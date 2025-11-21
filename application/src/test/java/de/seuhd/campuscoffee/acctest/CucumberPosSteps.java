@@ -17,6 +17,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -92,6 +93,7 @@ public class CucumberPosSteps {
     }
 
     // TODO: Add Given step for new scenario
+    // not needed since its the same as @Given of Scenario 1
 
     // When -----------------------------------------------------------------------
 
@@ -102,6 +104,40 @@ public class CucumberPosSteps {
     }
 
     // TODO: Add When step for new scenario
+    @When("I change the description of the POS {string} from {string} to {string}")
+    public void changeDescriptionOfPosWithTheFollowingName(String name, String oldDescription, String newDescription) {
+        PosDto current = retrievePosByName(name);
+        assertThat(current.description()).isEqualTo((oldDescription));
+
+        // create a Pos with the updated description
+        PosDto updated = PosDto.builder()
+                .id(current.id())
+                .name(current.name())
+                .description(newDescription)
+                .type(current.type())
+                .campus(current.campus())
+                .street(current.street())
+                .houseNumber(current.houseNumber())
+                .postalCode(current.postalCode())
+                .city(current.city())
+                .build();
+
+        // update the Pos List
+        List<PosDto> updatedPosList = updatePos(List.of(updated));
+
+        updatedPos = updatedPosList.get(0);
+
+        createdPosList = retrievePos(); // update createdPosList
+        //createdPosList = new ArrayList<>(createdPosList);   // make createdPosList mutable
+
+        // update the created Pos List
+        //for (int i = 0; i < createdPosList.size(); i++) {
+        //    PosDto currentPos =  createdPosList.get(i);
+        //    if (currentPos.name().equals(name)) {
+        //        createdPosList.set(i, updatedPos);
+        //    }
+        //}
+    }
 
     // Then -----------------------------------------------------------------------
 
@@ -114,4 +150,15 @@ public class CucumberPosSteps {
     }
 
     // TODO: Add Then step for new scenario
+    @Then("the POS {string} should have the description {string}")
+    public void thePosWithTheNameShouldHaveTheDescription(String name, String actualDescription) {
+        assertThat(updatedPos.name()).isEqualTo(name);
+        assertThat(updatedPos.description()).isEqualTo(actualDescription);
+
+        // check if the changes have persisted
+        PosDto retrievedPos = retrievePosByName(name);
+        assertThat(retrievedPos.description()).isEqualTo(actualDescription);
+    }
+
+
 }

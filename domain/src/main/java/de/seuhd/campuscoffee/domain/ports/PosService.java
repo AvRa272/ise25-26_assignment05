@@ -46,6 +46,14 @@ public interface PosService {
     // TODO: Add a new getByName method to enable fetching POS by name.
 
     /**
+     * Retrieves a specific Point of Sale by its uniques Name
+     *
+     * @param name the uniques Name of the POS to retrieve; must not be null
+     * @throws PosNotFoundException if no POS exists with the given Name
+     */
+    @NonNull Pos getByName(@NonNull String name) throws PosNotFoundException;
+
+    /**
      * Creates a new POS or updates an existing one.
      * This method performs an "upsert" operation:
      * <ul>
